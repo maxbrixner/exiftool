@@ -17,19 +17,19 @@
 /* public functions                                                           */
 /* -------------------------------------------------------------------------- */
 
-long int printExifInfo ( FILE *stream,
-                         struct exifItem *exifTable,
-                         int exifTableItemCount,
-                         char **tagTable,
-                         int tagTableItemCount,
-                         int verbose );
+long int printExifInfo(FILE *stream,
+                       struct exifItem *exifTable,
+                       int exifTableItemCount,
+                       char **tagTable,
+                       int tagTableItemCount,
+                       int verbose);
 
-long int printExifCsv ( FILE *stream,
-                        struct exifItem *exifTable,
-                        int exifTableItemCount,
-                        char **tagTable,
-                        int tagTableItemCount,
-                        int verbose );
+long int printExifCsv(FILE *stream,
+                      struct exifItem *exifTable,
+                      int exifTableItemCount,
+                      char **tagTable,
+                      int tagTableItemCount,
+                      int verbose);
 
 /* -------------------------------------------------------------------------- */
 

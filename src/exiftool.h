@@ -40,12 +40,12 @@
 /* structs                                                                    */
 /* -------------------------------------------------------------------------- */
 
-struct options {
+struct options
+{
 
     int recursive;
     int verbose;
     int debug;
-
 };
 
 /* -------------------------------------------------------------------------- */
@@ -58,66 +58,65 @@ int debug;
 /* public functions                                                           */
 /* -------------------------------------------------------------------------- */
 
-int main ( int argc,
-           char *argv[] );
+int main(int argc,
+         char *argv[]);
 
 /* -------------------------------------------------------------------------- */
 /* static functions                                                           */
 /* -------------------------------------------------------------------------- */
 
-static long int processArgs ( int argc,
-                              char *argv[] );
+static long int processArgs(int argc,
+                            char *argv[]);
 
-static long int getTask ( char *arg );
+static long int getTask(char *arg);
 
-static long int getOptions ( int argc,
-                             char *argv[],
-                             struct options *opt );
+static long int getOptions(int argc,
+                           char *argv[],
+                           struct options *opt);
 
-static long int allocateTagTable ( char ***tagTable,
-                                   int tagTableItemCount );
-                            
-static long int getTagList ( int argc,
-                             char *argv[],
-                             char ***tagTable );
-                             
-static long int allocateFileTable ( char ***fileTable,
-                                    int fileTableItemCount );
+static long int allocateTagTable(char ***tagTable,
+                                 int tagTableItemCount);
 
-static long int addFileToFileTable ( char *fileName,
-                                     char ***fileTable,
-                                     long int fileTableItemCount,
-                                     int recursive );
-                                    
-static long int getFileList ( int argc,
-                              char *argv[],
-                              char ***fileTable,
-                              int recursive );
-                              
-static void taskHelp ( FILE *stream );
+static long int getTagList(int argc,
+                           char *argv[],
+                           char ***tagTable);
 
-static long int taskPrint ( FILE *stream,
-                            struct options *opt,
-                            char **fileTable,
-                            long int fileTableItemCount,
-                            char **tagTable,
-                            long int tagTableItemCount  );
-                            
-static long int taskGps ( FILE *stream,
-                          struct options *opt,
-                          char **fileTable,
-                          long int fileTableItemCount );
+static long int allocateFileTable(char ***fileTable,
+                                  int fileTableItemCount);
 
-static long int taskCsv ( FILE *stream,
+static long int addFileToFileTable(char *fileName,
+                                   char ***fileTable,
+                                   long int fileTableItemCount,
+                                   int recursive);
+
+static long int getFileList(int argc,
+                            char *argv[],
+                            char ***fileTable,
+                            int recursive);
+
+static void taskHelp(FILE *stream);
+
+static long int taskPrint(FILE *stream,
                           struct options *opt,
                           char **fileTable,
                           long int fileTableItemCount,
                           char **tagTable,
-                          long int tagTableItemCount );
-                           
+                          long int tagTableItemCount);
+
+static long int taskGps(FILE *stream,
+                        struct options *opt,
+                        char **fileTable,
+                        long int fileTableItemCount);
+
+static long int taskCsv(FILE *stream,
+                        struct options *opt,
+                        char **fileTable,
+                        long int fileTableItemCount,
+                        char **tagTable,
+                        long int tagTableItemCount);
+
 /* -------------------------------------------------------------------------- */
 
 #endif
 
 /* -------------------------------------------------------------------------- */
-
