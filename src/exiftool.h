@@ -23,6 +23,7 @@
 #define TASK_PRINT 2
 #define TASK_GPS 3
 #define TASK_CSV 4
+#define TASK_RENAME 5
 
 #define ERR_NO_ARG -601
 #define ERR_ARG_INVALID -602
@@ -44,6 +45,7 @@ struct options {
     int recursive;
     int verbose;
     int debug;
+    char *pattern;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -92,6 +94,9 @@ static long int taskGps(FILE *stream, struct options *opt, char **fileTable,
 static long int taskCsv(FILE *stream, struct options *opt, char **fileTable,
                         long int fileTableItemCount, char **tagTable,
                         long int tagTableItemCount);
+
+static long int taskRename(struct options *opt, char **fileTable,
+                           long int fileTableItemCount);
 
 /* -------------------------------------------------------------------------- */
 

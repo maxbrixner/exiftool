@@ -2,7 +2,7 @@
 
 #include "exiftool.h"
 
-// TODO: add rename task
+// TODO: finish rename task
 // TODO: add modify time/date task
 // TODO: write unit tests
 
@@ -98,6 +98,10 @@ static long int processArgs(int argc, char *argv[]) {
         if ((rc = taskGps(stdout, &opt, fileTable, fileCount)) < 0) return rc;
     }
 
+    else if (task == TASK_RENAME) {
+        if ((rc = taskRename(&opt, fileTable, fileCount)) < 0) return rc;
+    }
+
     return 0;
 }
 
@@ -119,6 +123,8 @@ static long int getTask(char *arg) {
         task = TASK_GPS;
     else if (strcmp("csv", arg) == 0)
         task = TASK_CSV;
+    else if (strcmp("rename", arg) == 0)
+        task = TASK_RENAME;
     else
         return ERR_ARG_INVALID;
 
@@ -144,7 +150,9 @@ static long int getOptions(int argc, char *argv[], struct options *opt) {
         else if (strncmp("-d=", argv[i], 3) == 0) {
             (*opt).debug = atoi(argv[i] + 3);
             debug = (*opt).debug;
-        } else
+        } else if (strncmp("-p=", argv[i], 3) == 0)
+            (*opt).pattern = argv[i] + 3;
+        else
             return ERR_OPT_INVALID;
     }
 
@@ -459,6 +467,43 @@ static long int taskGps(FILE *stream, struct options *opt, char **fileTable,
             fprintf(stream, "%s\n", gps);
         else
             fprintf(stream, "no gps\n");
+
+        free(exifTable);
+    }
+
+    return 0;
+}
+/* -------------------------------------------------------------------------- */
+/* taskRename                                                                 */
+/* renames files according to a given pattern and their exif information.     */
+/* returns 0 if successful or a negative value otherwise.                     */
+/* -------------------------------------------------------------------------- */
+
+static long int taskRename(struct options *opt, char **fileTable,
+                           long int fileTableItemCount) {
+    long int i = 0;
+    long int rc = 0;
+    long int exifTableItemCount = 0;
+    struct exifItem *exifTable = NULL;
+    char *fileName = NULL;
+
+    for (i = 0; i < fileTableItemCount; i++) {
+        if ((exifTableItemCount = extractExifInfo(fileTable[i], &exifTable)) <
+            0) {
+            fprintf(stderr, "exiftool: exiflib error %ld\n",
+                    exifTableItemCount);
+            return exifTableItemCount;
+        }
+
+        if ((rc = fileNameFromPattern(&fileName, (*opt).pattern, fileTable[i],
+                                      exifTable, exifTableItemCount)) < 0) {
+            fprintf(stderr, "exiftool: exifparser error %ld\n", rc);
+            return rc;
+        }
+
+        // TODO: add rename and function that ammends file name if it already
+        // exists
+        // TODO: add test feature
 
         free(exifTable);
     }

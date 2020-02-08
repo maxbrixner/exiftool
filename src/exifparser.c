@@ -258,7 +258,7 @@ struct exifItem *findTagByName(struct exifItem *exifTable,
 /* wrapper for sprintf that included memory management.                       */
 /* -------------------------------------------------------------------------- */
 
-static int sprintf_wr(char **buf, char *fmt, ...) {
+int sprintf_wr(char **buf, char *fmt, ...) {
     int length = 0;
 
     va_list va, va2;
@@ -287,7 +287,7 @@ static int sprintf_wr(char **buf, char *fmt, ...) {
 /* wrapper for snprintf that included memory management.                      */
 /* -------------------------------------------------------------------------- */
 
-static size_t snprintf_wr(char **buf, size_t n, char *fmt, ...) {
+size_t snprintf_wr(char **buf, size_t n, char *fmt, ...) {
     va_list va;
 
     va_start(va, fmt);

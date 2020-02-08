@@ -71,6 +71,8 @@
 #define EXIF_ERR_MALLOC -710
 #define EXIF_ERR_TYPE_SIZE -711
 
+#define EXIF_ERR_PATTERN -712
+
 #define IFD_ID_IFD 1
 #define IFD_ID_EXIFOFFSET 2
 #define IFD_ID_GPSINFO 3

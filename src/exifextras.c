@@ -117,3 +117,70 @@ static long int isInTagTable(char *parsedTagId, char **tagTable,
 }
 
 /* -------------------------------------------------------------------------- */
+/* fileNameFromPattern                                                        */
+/* prints info from "exifTable" of length "exifTableItemCount" to "stream".   */
+/* if "tagTable" is not null, only tags from "tagTable" are printed.          */
+/* "tagTableItemCount" specifies the length of "tagTable". verbose output     */
+/* can be toggled.                                                            */
+/* -------------------------------------------------------------------------- */
+
+long int fileNameFromPattern(char **fileName, char *pattern, char *oldFileName,
+                             struct exifItem *exifTable,
+                             int exifTableItemCount) {
+    long int i = 0;
+    long int rc = 0;
+
+    char *charSearch = "";
+    char *fileNameNew = NULL;
+    char *subPattern = NULL;
+
+    if (pattern == NULL) return EXIF_ERR_PATTERN;
+    if (strlen(pattern) <= 0) return EXIF_ERR_PATTERN;
+
+    printf("pattern: \"%s\"\n", pattern);
+
+    if ((rc = sprintf_wr(fileName, "")) != 0) return rc;
+
+    for (i = 0; i < strlen(pattern); i++) {
+        printf("[%ld]\"%c\"\n", i, pattern[i]);
+
+        /* character is start of sub pattern */
+
+        if (strncmp(pattern + i, "[", 1) == 0) {
+            if ((charSearch = strchr(pattern + i, ']')) == NULL)
+                return EXIF_ERR_PATTERN;
+
+            snprintf_wr(&subPattern, charSearch - pattern - i, "%s",
+                        pattern + i + 1);
+
+            // TODO: add sub pattern analyzer
+
+            if ((rc = sprintf_wr(&fileNameNew, "%s%s", *fileName, "TODO")) < 0)
+                return rc;
+
+            printf("\tsub pattern \"%s\"\n", subPattern);
+            i = i + charSearch - pattern - i;
+        }
+
+        /* character is regular character */
+
+        else {
+            printf("\tregular character \"%c\"\n", pattern[i]);
+
+            if ((rc = sprintf_wr(&fileNameNew, "%s%c", *fileName, pattern[i])) <
+                0)
+                return rc;
+        }
+
+        /* update filename */
+
+        printf("\tfileNameNew: \"%s\"\n", fileNameNew);
+        *fileName = fileNameNew;
+    }
+
+    printf("result: \"%s\"\n", *fileName);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */

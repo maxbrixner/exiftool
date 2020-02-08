@@ -198,13 +198,9 @@ char *parseSpecialGPS(struct exifItem *exifTable, long int exifTableItemCount);
 struct exifItem *findTagByName(struct exifItem *exifTable,
                                int exifTableItemCount, char *tagName);
 
-/* -------------------------------------------------------------------------- */
-/* static functions                                                           */
-/* -------------------------------------------------------------------------- */
+int sprintf_wr(char **buf, char *fmt, ...);
 
-static int sprintf_wr(char **buf, char *fmt, ...);
-
-static size_t snprintf_wr(char **buf, size_t n, char *fmt, ...);
+size_t snprintf_wr(char **buf, size_t n, char *fmt, ...);
 
 /* -------------------------------------------------------------------------- */
 

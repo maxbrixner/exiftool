@@ -25,6 +25,10 @@ long int printExifCsv(FILE *stream, struct exifItem *exifTable,
                       int exifTableItemCount, char **tagTable,
                       int tagTableItemCount, int verbose);
 
+long int fileNameFromPattern(char **fileName, char *pattern, char *oldFileName,
+                             struct exifItem *exifTable,
+                             int exifTableItemCount);
+
 /* -------------------------------------------------------------------------- */
 /* static functions                                                           */
 /* -------------------------------------------------------------------------- */
