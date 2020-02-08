@@ -1,14 +1,14 @@
 #ifndef EXIFLIB_H_INCLUDED
 #define EXIFLIB_H_INCLUDED
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
-#include <math.h>
 #include <dirent.h>
 #include <errno.h>
+#include <math.h>
+#include <stdarg.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 
 /* -------------------------------------------------------------------------- */
@@ -79,9 +79,7 @@
 /* structs                                                                    */
 /* -------------------------------------------------------------------------- */
 
-struct exifItem
-{
-
+struct exifItem {
     long int exifFormat;
     long int ifdID;
 
@@ -95,9 +93,7 @@ struct exifItem
     unsigned char *tagData;
 };
 
-struct queueItem
-{
-
+struct queueItem {
     long int ifdPos;
     long int ifdID;
 };
@@ -110,21 +106,13 @@ static unsigned char soiMarker[SOI_MARKER_LENGTH] = {0xFF, 0xD8};
 
 static unsigned char exifMarker[EXIF_MARKER_LENGTH] = {0xFF, 0xE1};
 
-static unsigned char exifHeaderIntel[EXIF_HEADER_LENGTH] = {0x45, 0x78,
-                                                            0x69, 0x66,
-                                                            0x00, 0x00,
-                                                            0x49, 0x49,
-                                                            0x2A, 0x00,
-                                                            0x08, 0x00,
-                                                            0x00, 0x00};
+static unsigned char exifHeaderIntel[EXIF_HEADER_LENGTH] = {
+    0x45, 0x78, 0x69, 0x66, 0x00, 0x00, 0x49,
+    0x49, 0x2A, 0x00, 0x08, 0x00, 0x00, 0x00};
 
-static unsigned char exifHeaderMoto[EXIF_HEADER_LENGTH] = {0x45, 0x78,
-                                                           0x69, 0x66,
-                                                           0x00, 0x00,
-                                                           0x4D, 0x4D,
-                                                           0x00, 0x2A,
-                                                           0x00, 0x00,
-                                                           0x00, 0x08};
+static unsigned char exifHeaderMoto[EXIF_HEADER_LENGTH] = {
+    0x45, 0x78, 0x69, 0x66, 0x00, 0x00, 0x4D,
+    0x4D, 0x00, 0x2A, 0x00, 0x00, 0x00, 0x08};
 
 /* -------------------------------------------------------------------------- */
 /* extern variables                                                           */
@@ -136,80 +124,51 @@ extern int debug;
 /* public functions                                                           */
 /* -------------------------------------------------------------------------- */
 
-long int extractExifInfo(char *fileName,
-                         struct exifItem **exifTable);
+long int extractExifInfo(char *fileName, struct exifItem **exifTable);
 
-long int castUInt8(unsigned char *bytes,
-                   long int exifFormat);
+long int castUInt8(unsigned char *bytes, long int exifFormat);
 
-long int castUInt16(unsigned char *bytes,
-                    long int exifFormat);
+long int castUInt16(unsigned char *bytes, long int exifFormat);
 
-long int castUInt32(unsigned char *bytes,
-                    long int exifFormat);
+long int castUInt32(unsigned char *bytes, long int exifFormat);
 
-long int castInt32(unsigned char *bytes,
-                   long int exifFormat);
+long int castInt32(unsigned char *bytes, long int exifFormat);
 
-void debugger(int debugLevel,
-              char *fmt,
-              ...);
+void debugger(int debugLevel, char *fmt, ...);
 
 /* -------------------------------------------------------------------------- */
 /* static functions                                                           */
 /* -------------------------------------------------------------------------- */
 
-static unsigned char *reverseByteOrder(unsigned char *bytes,
-                                       long int size);
+static unsigned char *reverseByteOrder(unsigned char *bytes, long int size);
 
-static long int checkMarker(FILE *fp,
-                            unsigned char *marker,
-                            long int markerLength,
-                            long int markerPos);
+static long int checkMarker(FILE *fp, unsigned char *marker,
+                            long int markerLength, long int markerPos);
 
-static long int findMarkerInFile(FILE *fp,
-                                 unsigned char *marker,
-                                 long int markerLength,
-                                 long int startPos);
+static long int findMarkerInFile(FILE *fp, unsigned char *marker,
+                                 long int markerLength, long int startPos);
 
-static long int getExifFormat(FILE *fp,
-                              long int exifMarkerPos);
+static long int getExifFormat(FILE *fp, long int exifMarkerPos);
 
-static long int getIfdTagCount(FILE *fp,
-                               long int ifdPos,
-                               long int exifFormat);
+static long int getIfdTagCount(FILE *fp, long int ifdPos, long int exifFormat);
 
-static long int getIfdLink(FILE *fp,
-                           long int ifdPos,
-                           long int ifdTagCount,
+static long int getIfdLink(FILE *fp, long int ifdPos, long int ifdTagCount,
                            long int exifFormat);
 
-static long int getTagID(FILE *fp,
-                         long int tagPos,
-                         long int exifFormat);
+static long int getTagID(FILE *fp, long int tagPos, long int exifFormat);
 
-static long int getTagType(FILE *fp,
-                           long int tagPos,
-                           long int exifFormat);
+static long int getTagType(FILE *fp, long int tagPos, long int exifFormat);
 
 static long int getTagTypeSize(long int tagType);
 
-static long int getTagCount(FILE *fp,
-                            long int tagPos,
-                            long int exifFormat);
+static long int getTagCount(FILE *fp, long int tagPos, long int exifFormat);
 
-static long int getTagDataPos(FILE *fp,
-                              long int tagPos,
-                              long int exifFormat,
-                              long int tagTypeSize,
-                              long int tagCount,
+static long int getTagDataPos(FILE *fp, long int tagPos, long int exifFormat,
+                              long int tagTypeSize, long int tagCount,
                               long int exifMarkerPos);
 
-static long int getTagData(FILE *fp,
-                           long int tagDataPos,
-                           long int tagTypeSize,
-                           long int tagCount,
-                           unsigned char *tagData);
+static long int getTagData(FILE *fp, long int tagDataPos, long int tagTypeSize,
+                           long int tagCount, unsigned char *tagData);
 
 static long int allocateExifTable(struct exifItem **exifTable,
                                   long int exifTableItemCount);
@@ -218,27 +177,20 @@ static long int allocateIfdQueue(struct queueItem **ifdQueue,
                                  long int ifdQueueItemCount);
 
 static long int addIfdToQueue(struct queueItem **ifdQueue,
-                              long int *ifdQueueItemCount,
-                              long int ifdPos,
+                              long int *ifdQueueItemCount, long int ifdPos,
                               long int ifdID);
 
 static long int addItemToExifTable(struct exifItem **exifTable,
-                                   long int *exifTableItemCount,
-                                   FILE *fp,
-                                   long int tagPos,
-                                   long int ifdID,
-                                   long int exifMarkerPos,
-                                   long int exifFormat,
+                                   long int *exifTableItemCount, FILE *fp,
+                                   long int tagPos, long int ifdID,
+                                   long int exifMarkerPos, long int exifFormat,
                                    struct queueItem **ifdQueue,
                                    long int *ifdQueueItemCount);
 
 static long int addIfdToExifTable(struct exifItem **exifTable,
-                                  long int *exifTableItemCount,
-                                  FILE *fp,
-                                  long int ifdPos,
-                                  long int ifdID,
-                                  long int exifMarkerPos,
-                                  long int exifFormat,
+                                  long int *exifTableItemCount, FILE *fp,
+                                  long int ifdPos, long int ifdID,
+                                  long int exifMarkerPos, long int exifFormat,
                                   struct queueItem **ifdQueue,
                                   long int *ifdQueueItemCount);
 

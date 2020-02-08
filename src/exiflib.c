@@ -8,12 +8,9 @@
 /* the number of exif items if successful or a negative value otherwise.      */
 /* -------------------------------------------------------------------------- */
 
-long int extractExifInfo(char *fileName,
-                         struct exifItem **exifTable)
-{
-
-    //TODO the data of the maker Note itself also contains an ifd
-    //still unsure how to handle these
+long int extractExifInfo(char *fileName, struct exifItem **exifTable) {
+    // TODO the data of the maker Note itself also contains an ifd
+    // still unsure how to handle these
 
     long int i = 0;
     long int rc = 0;
@@ -31,15 +28,14 @@ long int extractExifInfo(char *fileName,
 
     /* open file */
 
-    if ((fp = fopen(fileName, "r")) == NULL)
-        return EXIF_ERR_FILE_OPEN;
+    if ((fp = fopen(fileName, "r")) == NULL) return EXIF_ERR_FILE_OPEN;
 
     debugger(1, "\nfileName = %s", fileName);
 
     /* find soi file marker to make sure it is a jpg */
 
-    if ((soiMarkerPos = findMarkerInFile(fp, soiMarker,
-                                         SOI_MARKER_LENGTH, 0)) < 0)
+    if ((soiMarkerPos = findMarkerInFile(fp, soiMarker, SOI_MARKER_LENGTH, 0)) <
+        0)
         return EXIF_ERR_NO_JPG;
 
     debugger(1, "soiMarkerPos = %ld", soiMarkerPos);
@@ -62,24 +58,18 @@ long int extractExifInfo(char *fileName,
     /* add ifd0 to queue */
 
     if ((rc = addIfdToQueue(&ifdQueue, &ifdQueueItemCount,
-                            exifMarkerPos + EXIF_MARKER_LENGTH + 2 //exif marker has two extra bytes
+                            exifMarkerPos + EXIF_MARKER_LENGTH +
+                                2  // exif marker has two extra bytes
                                 + EXIF_HEADER_LENGTH,
                             IFD_ID_IFD)) < 0)
         return EXIF_ERR_IFD_QUEUE;
 
     /* process queue - more queue items will be added during process */
 
-    for (i = 0; i < ifdQueueItemCount; i++)
-    {
-
-        if ((rc = addIfdToExifTable(exifTable,
-                                    &exifTableItemCount,
-                                    fp,
-                                    ifdQueue[i].ifdPos,
-                                    ifdQueue[i].ifdID,
-                                    exifMarkerPos,
-                                    exifFormat,
-                                    &ifdQueue,
+    for (i = 0; i < ifdQueueItemCount; i++) {
+        if ((rc = addIfdToExifTable(exifTable, &exifTableItemCount, fp,
+                                    ifdQueue[i].ifdPos, ifdQueue[i].ifdID,
+                                    exifMarkerPos, exifFormat, &ifdQueue,
                                     &ifdQueueItemCount)) < 0)
             return EXIF_ERR_ADD_IFD;
     }
@@ -97,18 +87,14 @@ long int extractExifInfo(char *fileName,
 /* returns the converted value if successful or zero instead.                 */
 /* -------------------------------------------------------------------------- */
 
-long int castUInt8(unsigned char *bytes,
-                   long int exifFormat)
-{
-
+long int castUInt8(unsigned char *bytes, long int exifFormat) {
     long int cast = 0;
 
     if (exifFormat == EXIF_FORMAT_INTEL)
         cast = (long int)(*((uint8_t *)bytes));
 
     else if (exifFormat == EXIF_FORMAT_MOTO)
-        cast = (long int)(*((uint8_t *)
-                                reverseByteOrder(bytes, 1)));
+        cast = (long int)(*((uint8_t *)reverseByteOrder(bytes, 1)));
 
     else
         return 0;
@@ -122,18 +108,14 @@ long int castUInt8(unsigned char *bytes,
 /* returns the converted value if successful or zero instead.                 */
 /* -------------------------------------------------------------------------- */
 
-long int castUInt16(unsigned char *bytes,
-                    long int exifFormat)
-{
-
+long int castUInt16(unsigned char *bytes, long int exifFormat) {
     long int cast = 0;
 
     if (exifFormat == EXIF_FORMAT_INTEL)
         cast = (long int)(*((uint16_t *)bytes));
 
     else if (exifFormat == EXIF_FORMAT_MOTO)
-        cast = (long int)(*((uint16_t *)
-                                reverseByteOrder(bytes, 2)));
+        cast = (long int)(*((uint16_t *)reverseByteOrder(bytes, 2)));
 
     else
         return 0;
@@ -147,18 +129,14 @@ long int castUInt16(unsigned char *bytes,
 /* returns the converted value if successful or zero instead.                 */
 /* -------------------------------------------------------------------------- */
 
-long int castUInt32(unsigned char *bytes,
-                    long int exifFormat)
-{
-
+long int castUInt32(unsigned char *bytes, long int exifFormat) {
     long int cast = 0;
 
     if (exifFormat == EXIF_FORMAT_INTEL)
         cast = (long int)(*((uint32_t *)bytes));
 
     else if (exifFormat == EXIF_FORMAT_MOTO)
-        cast = (long int)(*((uint32_t *)
-                                reverseByteOrder(bytes, 4)));
+        cast = (long int)(*((uint32_t *)reverseByteOrder(bytes, 4)));
 
     else
         return 0;
@@ -172,18 +150,14 @@ long int castUInt32(unsigned char *bytes,
 /* returns the converted value if successful or zero instead.                 */
 /* -------------------------------------------------------------------------- */
 
-long int castInt32(unsigned char *bytes,
-                   long int exifFormat)
-{
-
+long int castInt32(unsigned char *bytes, long int exifFormat) {
     long int cast = 0;
 
     if (exifFormat == EXIF_FORMAT_INTEL)
         cast = (long int)(*((int32_t *)bytes));
 
     else if (exifFormat == EXIF_FORMAT_MOTO)
-        cast = (long int)(*((int32_t *)
-                                reverseByteOrder(bytes, 4)));
+        cast = (long int)(*((int32_t *)reverseByteOrder(bytes, 4)));
 
     else
         return 0;
@@ -197,19 +171,13 @@ long int castInt32(unsigned char *bytes,
 /* to reverse. returns the reversed char or NULL in case of an error.         */
 /* -------------------------------------------------------------------------- */
 
-static unsigned char *reverseByteOrder(unsigned char *bytes,
-                                       long int size)
-{
-
+static unsigned char *reverseByteOrder(unsigned char *bytes, long int size) {
     long int i = 0;
     unsigned char *buf = NULL;
 
-    if ((buf = (unsigned char *)malloc(size)) == NULL)
-        return NULL;
+    if ((buf = (unsigned char *)malloc(size)) == NULL) return NULL;
 
-    for (i = 0; i < size; i++)
-    {
-
+    for (i = 0; i < size; i++) {
         buf[i] = bytes[size - i - 1];
     }
 
@@ -223,32 +191,25 @@ static unsigned char *reverseByteOrder(unsigned char *bytes,
 /* position or 0 otherwise. in case of an error a negative value is returned. */
 /* -------------------------------------------------------------------------- */
 
-static long int checkMarker(FILE *fp,
-                            unsigned char *marker,
-                            long int markerLength,
-                            long int markerPos)
-{
-
+static long int checkMarker(FILE *fp, unsigned char *marker,
+                            long int markerLength, long int markerPos) {
     long int markerFound = 0;
     unsigned char *buf = NULL;
 
     if ((buf = (unsigned char *)malloc(markerLength)) == NULL)
         return EXIF_ERR_MALLOC;
 
-    if (fseek(fp, markerPos, SEEK_SET) != 0)
-    {
+    if (fseek(fp, markerPos, SEEK_SET) != 0) {
         free(buf);
         return EXIF_ERR_FILE_READ;
     }
 
-    if (fread(buf, 1, markerLength, fp) != markerLength)
-    {
+    if (fread(buf, 1, markerLength, fp) != markerLength) {
         free(buf);
         return EXIF_ERR_FILE_READ;
     }
 
-    if (memcmp(buf, marker, markerLength) == 0)
-        markerFound = 1;
+    if (memcmp(buf, marker, markerLength) == 0) markerFound = 1;
 
     free(buf);
 
@@ -262,30 +223,20 @@ static long int checkMarker(FILE *fp,
 /* otherwise it returns a negative value.                                     */
 /* -------------------------------------------------------------------------- */
 
-static long int findMarkerInFile(FILE *fp,
-                                 unsigned char *marker,
-                                 long int markerLength,
-                                 long int startPos)
-{
-
+static long int findMarkerInFile(FILE *fp, unsigned char *marker,
+                                 long int markerLength, long int startPos) {
     long int fileSize = 0;
     long int markerPos = EXIF_ERR_MARKER;
     long int i = 0;
 
-    if (fseek(fp, 0L, SEEK_END) != 0)
-        return EXIF_ERR_FILE_READ;
+    if (fseek(fp, 0L, SEEK_END) != 0) return EXIF_ERR_FILE_READ;
 
-    if ((fileSize = ftell(fp)) == -1L)
-        return EXIF_ERR_FILE_READ;
+    if ((fileSize = ftell(fp)) == -1L) return EXIF_ERR_FILE_READ;
 
-    if (fileSize - markerLength <= startPos)
-        return EXIF_ERR_FILE_READ;
+    if (fileSize - markerLength <= startPos) return EXIF_ERR_FILE_READ;
 
-    for (i = startPos; i < fileSize - markerLength; i++)
-    {
-
-        if (checkMarker(fp, marker, markerLength, i) == 1)
-        {
+    for (i = startPos; i < fileSize - markerLength; i++) {
+        if (checkMarker(fp, marker, markerLength, i) == 1) {
             markerPos = i;
             break;
         }
@@ -301,10 +252,7 @@ static long int findMarkerInFile(FILE *fp,
 /* negative value otherwise.                                                  */
 /* -------------------------------------------------------------------------- */
 
-static long int getExifFormat(FILE *fp,
-                              long int exifMarkerPos)
-{
-
+static long int getExifFormat(FILE *fp, long int exifMarkerPos) {
     long int exifFormat = 0;
 
     if (checkMarker(fp, exifHeaderIntel, EXIF_HEADER_LENGTH,
@@ -328,19 +276,13 @@ static long int getExifFormat(FILE *fp,
 /* is returned.                                                               */
 /* -------------------------------------------------------------------------- */
 
-static long int getIfdTagCount(FILE *fp,
-                               long int ifdPos,
-                               long int exifFormat)
-{
-
+static long int getIfdTagCount(FILE *fp, long int ifdPos, long int exifFormat) {
     long int tagCount = 0;
     char buf[2] = "";
 
-    if (fseek(fp, ifdPos, SEEK_SET) != 0)
-        return EXIF_ERR_FILE_READ;
+    if (fseek(fp, ifdPos, SEEK_SET) != 0) return EXIF_ERR_FILE_READ;
 
-    if (fread(buf, 1, 2, fp) != 2)
-        return EXIF_ERR_FILE_READ;
+    if (fread(buf, 1, 2, fp) != 2) return EXIF_ERR_FILE_READ;
 
     tagCount = castUInt16(buf, exifFormat);
 
@@ -354,20 +296,16 @@ static long int getIfdTagCount(FILE *fp,
 /* an error a negative value is returned.                                     */
 /* -------------------------------------------------------------------------- */
 
-static long int getIfdLink(FILE *fp,
-                           long int ifdPos,
-                           long int ifdTagCount,
-                           long int exifFormat)
-{
-
+static long int getIfdLink(FILE *fp, long int ifdPos, long int ifdTagCount,
+                           long int exifFormat) {
     long int ifdLink = 0;
     unsigned char buf[4] = "";
 
-    if (fseek(fp, ifdPos + IFD_HEADER_LENGTH + EXIF_TAG_LENGTH * ifdTagCount, SEEK_SET) != 0)
+    if (fseek(fp, ifdPos + IFD_HEADER_LENGTH + EXIF_TAG_LENGTH * ifdTagCount,
+              SEEK_SET) != 0)
         return EXIF_ERR_FILE_READ;
 
-    if (fread(buf, 1, 4, fp) != 4)
-        return EXIF_ERR_FILE_READ;
+    if (fread(buf, 1, 4, fp) != 4) return EXIF_ERR_FILE_READ;
 
     ifdLink = castUInt32(buf, exifFormat);
 
@@ -380,19 +318,13 @@ static long int getIfdLink(FILE *fp,
 /* in case of an error a negative value is returned.                          */
 /* -------------------------------------------------------------------------- */
 
-static long int getTagID(FILE *fp,
-                         long int tagPos,
-                         long int exifFormat)
-{
-
+static long int getTagID(FILE *fp, long int tagPos, long int exifFormat) {
     long int tagID = 0;
     unsigned char buf[2] = "";
 
-    if (fseek(fp, tagPos, SEEK_SET) != 0)
-        return EXIF_ERR_FILE_READ;
+    if (fseek(fp, tagPos, SEEK_SET) != 0) return EXIF_ERR_FILE_READ;
 
-    if (fread(&buf, 1, 2, fp) != 2)
-        return EXIF_ERR_FILE_READ;
+    if (fread(&buf, 1, 2, fp) != 2) return EXIF_ERR_FILE_READ;
 
     tagID = castUInt16(buf, exifFormat);
 
@@ -405,19 +337,13 @@ static long int getTagID(FILE *fp,
 /* in case of an error a negative value is returned.                          */
 /* -------------------------------------------------------------------------- */
 
-static long int getTagType(FILE *fp,
-                           long int tagPos,
-                           long int exifFormat)
-{
-
+static long int getTagType(FILE *fp, long int tagPos, long int exifFormat) {
     long int tagType = 0;
     unsigned char buf[2] = "";
 
-    if (fseek(fp, tagPos + 2, SEEK_SET) != 0)
-        return EXIF_ERR_FILE_READ;
+    if (fseek(fp, tagPos + 2, SEEK_SET) != 0) return EXIF_ERR_FILE_READ;
 
-    if (fread(&buf, 1, 2, fp) != 2)
-        return EXIF_ERR_FILE_READ;
+    if (fread(&buf, 1, 2, fp) != 2) return EXIF_ERR_FILE_READ;
 
     tagType = castUInt16(buf, exifFormat);
 
@@ -430,38 +356,35 @@ static long int getTagType(FILE *fp,
 /* negative value is returned.                                                */
 /* -------------------------------------------------------------------------- */
 
-static long int getTagTypeSize(long int tagType)
-{
-
+static long int getTagTypeSize(long int tagType) {
     long int tagTypeSize = 0;
 
-    switch (tagType)
-    {
-    case 1:
-    case 6:
-        tagTypeSize = 1;
-        break;
-    case 2:
-    case 7:
-        tagTypeSize = 1;
-        break;
-    case 3:
-    case 8:
-        tagTypeSize = 2;
-        break;
-    case 4:
-    case 9:
-    case 11:
-        tagTypeSize = 4;
-        break;
-    case 5:
-    case 10:
-    case 12:
-        tagTypeSize = 8;
-        break;
-    default:
-        tagTypeSize = EXIF_ERR_TYPE_SIZE;
-        break;
+    switch (tagType) {
+        case 1:
+        case 6:
+            tagTypeSize = 1;
+            break;
+        case 2:
+        case 7:
+            tagTypeSize = 1;
+            break;
+        case 3:
+        case 8:
+            tagTypeSize = 2;
+            break;
+        case 4:
+        case 9:
+        case 11:
+            tagTypeSize = 4;
+            break;
+        case 5:
+        case 10:
+        case 12:
+            tagTypeSize = 8;
+            break;
+        default:
+            tagTypeSize = EXIF_ERR_TYPE_SIZE;
+            break;
     }
 
     return tagTypeSize;
@@ -473,19 +396,13 @@ static long int getTagTypeSize(long int tagType)
 /* in case of an error a negative value is returned.                          */
 /* -------------------------------------------------------------------------- */
 
-static long int getTagCount(FILE *fp,
-                            long int tagPos,
-                            long int exifFormat)
-{
-
+static long int getTagCount(FILE *fp, long int tagPos, long int exifFormat) {
     long int tagCount = 0;
     unsigned char buf[4] = "";
 
-    if (fseek(fp, tagPos + 4, SEEK_SET) != 0)
-        return EXIF_ERR_FILE_READ;
+    if (fseek(fp, tagPos + 4, SEEK_SET) != 0) return EXIF_ERR_FILE_READ;
 
-    if (fread(buf, 1, 4, fp) != 4)
-        return EXIF_ERR_FILE_READ;
+    if (fread(buf, 1, 4, fp) != 4) return EXIF_ERR_FILE_READ;
 
     tagCount = castUInt32(buf, exifFormat);
 
@@ -500,30 +417,18 @@ static long int getTagCount(FILE *fp,
 /* relative one. in case of an error a negative value  is returned.           */
 /* -------------------------------------------------------------------------- */
 
-static long int getTagDataPos(FILE *fp,
-                              long int tagPos,
-                              long int exifFormat,
-                              long int tagTypeSize,
-                              long int tagCount,
-                              long int exifMarkerPos)
-{
-
+static long int getTagDataPos(FILE *fp, long int tagPos, long int exifFormat,
+                              long int tagTypeSize, long int tagCount,
+                              long int exifMarkerPos) {
     long int tagDataPos = 0;
     unsigned char buf[4] = "";
 
-    if (fseek(fp, tagPos + 8, SEEK_SET) != 0)
-        return EXIF_ERR_FILE_READ;
+    if (fseek(fp, tagPos + 8, SEEK_SET) != 0) return EXIF_ERR_FILE_READ;
 
-    if (tagTypeSize * tagCount <= 4)
-    {
-
+    if (tagTypeSize * tagCount <= 4) {
         tagDataPos = tagPos + 8;
-    }
-    else
-    {
-
-        if (fread(buf, 1, 4, fp) != 4)
-            return EXIF_ERR_FILE_READ;
+    } else {
+        if (fread(buf, 1, 4, fp) != 4) return EXIF_ERR_FILE_READ;
 
         tagDataPos = castUInt32(buf, exifFormat) + exifMarkerPos + 10;
     }
@@ -539,15 +444,9 @@ static long int getTagDataPos(FILE *fp,
 /* negative value is returned.                                                */
 /* -------------------------------------------------------------------------- */
 
-static long int getTagData(FILE *fp,
-                           long int tagDataPos,
-                           long int tagTypeSize,
-                           long int tagCount,
-                           unsigned char *tagData)
-{
-
-    if (fseek(fp, tagDataPos, SEEK_SET) != 0)
-        return EXIF_ERR_FILE_READ;
+static long int getTagData(FILE *fp, long int tagDataPos, long int tagTypeSize,
+                           long int tagCount, unsigned char *tagData) {
+    if (fseek(fp, tagDataPos, SEEK_SET) != 0) return EXIF_ERR_FILE_READ;
 
     if (fread(tagData, tagTypeSize, tagCount, fp) != tagCount)
         return EXIF_ERR_FILE_READ;
@@ -564,22 +463,15 @@ static long int getTagData(FILE *fp,
 /* -------------------------------------------------------------------------- */
 
 static long int allocateExifTable(struct exifItem **exifTable,
-                                  long int exifTableItemCount)
-{
-
-    if (exifTableItemCount == 0)
-    {
-
-        if ((*exifTable =
-                 (struct exifItem *)malloc(sizeof(struct exifItem))) == NULL)
+                                  long int exifTableItemCount) {
+    if (exifTableItemCount == 0) {
+        if ((*exifTable = (struct exifItem *)malloc(sizeof(struct exifItem))) ==
+            NULL)
             return EXIF_ERR_MALLOC;
-    }
-    else
-    {
-
-        if ((*exifTable =
-                 (struct exifItem *)realloc(*exifTable,
-                                            sizeof(struct exifItem) * (exifTableItemCount + 1))) == NULL)
+    } else {
+        if ((*exifTable = (struct exifItem *)realloc(
+                 *exifTable,
+                 sizeof(struct exifItem) * (exifTableItemCount + 1))) == NULL)
             return EXIF_ERR_MALLOC;
     }
 
@@ -595,22 +487,15 @@ static long int allocateExifTable(struct exifItem **exifTable,
 /* -------------------------------------------------------------------------- */
 
 static long int allocateIfdQueue(struct queueItem **ifdQueue,
-                                 long int ifdQueueItemCount)
-{
-
-    if (ifdQueueItemCount == 0)
-    {
-
+                                 long int ifdQueueItemCount) {
+    if (ifdQueueItemCount == 0) {
         if ((*ifdQueue =
                  (struct queueItem *)malloc(sizeof(struct queueItem))) == NULL)
             return EXIF_ERR_MALLOC;
-    }
-    else
-    {
-
-        if ((*ifdQueue =
-                 (struct queueItem *)realloc(*ifdQueue,
-                                             sizeof(struct queueItem) * (ifdQueueItemCount + 1))) == NULL)
+    } else {
+        if ((*ifdQueue = (struct queueItem *)realloc(
+                 *ifdQueue,
+                 sizeof(struct queueItem) * (ifdQueueItemCount + 1))) == NULL)
             return EXIF_ERR_MALLOC;
     }
 
@@ -624,19 +509,15 @@ static long int allocateIfdQueue(struct queueItem **ifdQueue,
 /* -------------------------------------------------------------------------- */
 
 static long int addIfdToQueue(struct queueItem **ifdQueue,
-                              long int *ifdQueueItemCount,
-                              long int ifdPos,
-                              long int ifdID)
-{
-
+                              long int *ifdQueueItemCount, long int ifdPos,
+                              long int ifdID) {
     long int rc = 0;
 
     long int itemNo = *ifdQueueItemCount;
 
     /* create new queue item */
 
-    if ((rc = allocateIfdQueue(ifdQueue, itemNo)) < 0)
-        return rc;
+    if ((rc = allocateIfdQueue(ifdQueue, itemNo)) < 0) return rc;
 
     /* write exif format and ifd info */
 
@@ -662,16 +543,11 @@ static long int addIfdToQueue(struct queueItem **ifdQueue,
 /* -------------------------------------------------------------------------- */
 
 static long int addItemToExifTable(struct exifItem **exifTable,
-                                   long int *exifTableItemCount,
-                                   FILE *fp,
-                                   long int tagPos,
-                                   long int ifdID,
-                                   long int exifMarkerPos,
-                                   long int exifFormat,
+                                   long int *exifTableItemCount, FILE *fp,
+                                   long int tagPos, long int ifdID,
+                                   long int exifMarkerPos, long int exifFormat,
                                    struct queueItem **ifdQueue,
-                                   long int *ifdQueueItemCount)
-{
-
+                                   long int *ifdQueueItemCount) {
     long int i = 0;
     long int rc = 0;
 
@@ -689,8 +565,7 @@ static long int addItemToExifTable(struct exifItem **exifTable,
 
     /* create new table item */
 
-    if ((rc = allocateExifTable(exifTable, *exifTableItemCount)) < 0)
-        return rc;
+    if ((rc = allocateExifTable(exifTable, *exifTableItemCount)) < 0) return rc;
 
     debugger(2, "adding exif item %ld", itemNo + 1);
 
@@ -706,11 +581,7 @@ static long int addItemToExifTable(struct exifItem **exifTable,
 
     /* get and write tag id */
 
-    if ((tagID =
-             getTagID(fp,
-                      tagPos,
-                      exifFormat)) < 0)
-        return tagID;
+    if ((tagID = getTagID(fp, tagPos, exifFormat)) < 0) return tagID;
 
     debugger(3, "tagID = 0x%04x", tagID);
 
@@ -718,11 +589,7 @@ static long int addItemToExifTable(struct exifItem **exifTable,
 
     /* get and write tag type */
 
-    if ((tagType =
-             getTagType(fp,
-                        tagPos,
-                        exifFormat)) < 0)
-        return tagType;
+    if ((tagType = getTagType(fp, tagPos, exifFormat)) < 0) return tagType;
 
     (*exifTable)[itemNo].tagType = tagType;
 
@@ -730,9 +597,7 @@ static long int addItemToExifTable(struct exifItem **exifTable,
 
     /* get and write tag type size */
 
-    if ((tagTypeSize =
-             getTagTypeSize(tagType)) < 0)
-        return tagTypeSize;
+    if ((tagTypeSize = getTagTypeSize(tagType)) < 0) return tagTypeSize;
 
     (*exifTable)[itemNo].tagTypeSize = tagTypeSize;
 
@@ -740,11 +605,7 @@ static long int addItemToExifTable(struct exifItem **exifTable,
 
     /* get and write tag count */
 
-    if ((tagCount =
-             getTagCount(fp,
-                         tagPos,
-                         exifFormat)) < 0)
-        return tagCount;
+    if ((tagCount = getTagCount(fp, tagPos, exifFormat)) < 0) return tagCount;
 
     (*exifTable)[itemNo].tagCount = tagCount;
 
@@ -752,13 +613,8 @@ static long int addItemToExifTable(struct exifItem **exifTable,
 
     /* get and write tag data pos */
 
-    if ((tagDataPos =
-             getTagDataPos(fp,
-                           tagPos,
-                           exifFormat,
-                           tagTypeSize,
-                           tagCount,
-                           exifMarkerPos)) < 0)
+    if ((tagDataPos = getTagDataPos(fp, tagPos, exifFormat, tagTypeSize,
+                                    tagCount, exifMarkerPos)) < 0)
         return tagDataPos;
 
     (*exifTable)[itemNo].tagDataPos = tagDataPos;
@@ -767,14 +623,11 @@ static long int addItemToExifTable(struct exifItem **exifTable,
 
     /* get and write tag data */
 
-    if (((*exifTable)[itemNo].tagData = (unsigned char *)
-             malloc(tagTypeSize * tagCount)) == NULL)
+    if (((*exifTable)[itemNo].tagData =
+             (unsigned char *)malloc(tagTypeSize * tagCount)) == NULL)
         return EXIF_ERR_MALLOC;
 
-    if ((rc = getTagData(fp,
-                         tagDataPos,
-                         tagTypeSize,
-                         tagCount,
+    if ((rc = getTagData(fp, tagDataPos, tagTypeSize, tagCount,
                          (*exifTable)[itemNo].tagData)) < 0)
         return rc;
 
@@ -784,25 +637,23 @@ static long int addItemToExifTable(struct exifItem **exifTable,
 
     /* add exitoffset and gpsinfo to ifd queue */
 
-    if (tagID == 0x8769)
-    {
-
+    if (tagID == 0x8769) {
         offset = castUInt32((*exifTable)[itemNo].tagData, exifFormat);
 
-        if ((rc = addIfdToQueue(ifdQueue, ifdQueueItemCount,
-                                offset + exifMarkerPos + 10, // relative to TIFF
-                                IFD_ID_EXIFOFFSET)) < 0)
+        if ((rc =
+                 addIfdToQueue(ifdQueue, ifdQueueItemCount,
+                               offset + exifMarkerPos + 10,  // relative to TIFF
+                               IFD_ID_EXIFOFFSET)) < 0)
             return rc;
     }
 
-    if (tagID == 0x8825)
-    {
-
+    if (tagID == 0x8825) {
         offset = castUInt32((*exifTable)[itemNo].tagData, exifFormat);
 
-        if ((rc = addIfdToQueue(ifdQueue, ifdQueueItemCount,
-                                offset + exifMarkerPos + 10, // relative to TIFF
-                                IFD_ID_GPSINFO)) < 0)
+        if ((rc =
+                 addIfdToQueue(ifdQueue, ifdQueueItemCount,
+                               offset + exifMarkerPos + 10,  // relative to TIFF
+                               IFD_ID_GPSINFO)) < 0)
             return rc;
     }
 
@@ -821,16 +672,11 @@ static long int addItemToExifTable(struct exifItem **exifTable,
 /* -------------------------------------------------------------------------- */
 
 static long int addIfdToExifTable(struct exifItem **exifTable,
-                                  long int *exifTableItemCount,
-                                  FILE *fp,
-                                  long int ifdPos,
-                                  long int ifdID,
-                                  long int exifMarkerPos,
-                                  long int exifFormat,
+                                  long int *exifTableItemCount, FILE *fp,
+                                  long int ifdPos, long int ifdID,
+                                  long int exifMarkerPos, long int exifFormat,
                                   struct queueItem **ifdQueue,
-                                  long int *ifdQueueItemCount)
-{
-
+                                  long int *ifdQueueItemCount) {
     long int rc = 0;
     long int i = 0;
     long int ifdTagCount = 0;
@@ -841,26 +687,24 @@ static long int addIfdToExifTable(struct exifItem **exifTable,
 
     /* get number of tags in image file directory */
 
-    if ((ifdTagCount =
-             getIfdTagCount(fp, ifdPos, exifFormat)) < 0)
+    if ((ifdTagCount = getIfdTagCount(fp, ifdPos, exifFormat)) < 0)
         return ifdTagCount;
 
     debugger(2, "ifdTagCount = %ld", ifdTagCount);
 
     /* get link to next image file directory */
 
-    if ((ifdLink =
-             getIfdLink(fp, ifdPos, ifdTagCount, exifFormat)) < 0)
+    if ((ifdLink = getIfdLink(fp, ifdPos, ifdTagCount, exifFormat)) < 0)
         return ifdLink;
 
     debugger(2, "ifdLink = %ld", ifdLink);
 
     /* add link to ifd queue */
 
-    if (ifdLink > 0)
-    {
+    if (ifdLink > 0) {
         if ((rc = addIfdToQueue(ifdQueue, ifdQueueItemCount,
-                                ifdLink + exifMarkerPos + 10, ifdID)) < 0) // relative to TIFF
+                                ifdLink + exifMarkerPos + 10, ifdID)) <
+            0)  // relative to TIFF
             return rc;
     }
 
@@ -868,17 +712,9 @@ static long int addIfdToExifTable(struct exifItem **exifTable,
 
     tagPos = ifdPos + 2;
 
-    for (i = 0; i < ifdTagCount; i++)
-    {
-
-        if ((rc = addItemToExifTable(exifTable,
-                                     exifTableItemCount,
-                                     fp,
-                                     tagPos,
-                                     ifdID,
-                                     exifMarkerPos,
-                                     exifFormat,
-                                     ifdQueue,
+    for (i = 0; i < ifdTagCount; i++) {
+        if ((rc = addItemToExifTable(exifTable, exifTableItemCount, fp, tagPos,
+                                     ifdID, exifMarkerPos, exifFormat, ifdQueue,
                                      ifdQueueItemCount)) < 0)
             return rc;
 
@@ -890,14 +726,8 @@ static long int addIfdToExifTable(struct exifItem **exifTable,
 
 /* -------------------------------------------------------------------------- */
 
-void debugger(int debugLevel,
-              char *fmt,
-              ...)
-{
-
-    if (debugLevel <= debug)
-    {
-
+void debugger(int debugLevel, char *fmt, ...) {
+    if (debugLevel <= debug) {
         va_list va;
 
         fprintf(stderr, "[DBG] ");

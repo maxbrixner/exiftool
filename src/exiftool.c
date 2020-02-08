@@ -2,25 +2,20 @@
 
 #include "exiftool.h"
 
-//TODO: prettify exifparser.c and exifextras.c
-//TODO: add rename task
-//TODO: add modify time/date task
-//TODO: write unit tests
+// TODO: add rename task
+// TODO: add modify time/date task
+// TODO: write unit tests
 
 /* -------------------------------------------------------------------------- */
 /* main                                                                       */
 /* -------------------------------------------------------------------------- */
 
-int main(int argc,
-         char *argv[])
-{
-
+int main(int argc, char *argv[]) {
     int rc = 0;
 
     /* process */
 
-    if ((rc = processArgs(argc, argv)) < 0)
-        return rc;
+    if ((rc = processArgs(argc, argv)) < 0) return rc;
 
     return 0;
 }
@@ -31,10 +26,7 @@ int main(int argc,
 /* value otherwise.                                                           */
 /* -------------------------------------------------------------------------- */
 
-static long int processArgs(int argc,
-                            char *argv[])
-{
-
+static long int processArgs(int argc, char *argv[]) {
     int rc = 0;
     int i = 0;
     int task = 0;
@@ -46,8 +38,7 @@ static long int processArgs(int argc,
 
     /* check if there are any arguments */
 
-    if (argc <= 1)
-    {
+    if (argc <= 1) {
         fprintf(stderr, "exiftool: missing arguments\n");
         fprintf(stderr, "Try 'exiftool help' for more information.\n");
         return ERR_NO_ARG;
@@ -55,8 +46,7 @@ static long int processArgs(int argc,
 
     /* get task */
 
-    if ((task = getTask(argv[1])) < 0)
-    {
+    if ((task = getTask(argv[1])) < 0) {
         fprintf(stderr, "exiftool: invalid task\n");
         fprintf(stderr, "Try 'exiftool help' for more information.\n");
         return task;
@@ -64,8 +54,7 @@ static long int processArgs(int argc,
 
     /* get options */
 
-    if ((rc = getOptions(argc, argv, &opt)) < 0)
-    {
+    if ((rc = getOptions(argc, argv, &opt)) < 0) {
         fprintf(stderr, "exiftool: invalid option\n");
         fprintf(stderr, "Try 'exiftool help' for more information.\n");
         return rc;
@@ -73,8 +62,7 @@ static long int processArgs(int argc,
 
     /* get tag list */
 
-    if ((tagCount = getTagList(argc, argv, &tagTable)) < 0)
-    {
+    if ((tagCount = getTagList(argc, argv, &tagTable)) < 0) {
         fprintf(stderr, "exiftool: invalid tag\n");
         fprintf(stderr, "Try 'exiftool help' for more information.\n");
         return rc;
@@ -82,9 +70,7 @@ static long int processArgs(int argc,
 
     /* get file list */
 
-    if ((fileCount = getFileList(argc, argv,
-                                 &fileTable, opt.recursive)) < 0)
-    {
+    if ((fileCount = getFileList(argc, argv, &fileTable, opt.recursive)) < 0) {
         fprintf(stderr, "exiftool: error processing file list\n");
         fprintf(stderr, "Try 'exiftool help' for more information.\n");
         return fileCount;
@@ -92,33 +78,24 @@ static long int processArgs(int argc,
 
     /* execute tasks */
 
-    if (task == TASK_HELP)
-    {
-
+    if (task == TASK_HELP) {
         taskHelp(stdout);
     }
 
-    else if (task == TASK_PRINT)
-    {
-
-        if ((rc = taskPrint(stdout, &opt, fileTable, fileCount,
-                            tagTable, tagCount)) < 0)
+    else if (task == TASK_PRINT) {
+        if ((rc = taskPrint(stdout, &opt, fileTable, fileCount, tagTable,
+                            tagCount)) < 0)
             return rc;
     }
 
-    else if (task == TASK_CSV)
-    {
-
-        if ((rc = taskCsv(stdout, &opt, fileTable, fileCount,
-                          tagTable, tagCount)) < 0)
+    else if (task == TASK_CSV) {
+        if ((rc = taskCsv(stdout, &opt, fileTable, fileCount, tagTable,
+                          tagCount)) < 0)
             return rc;
     }
 
-    else if (task == TASK_GPS)
-    {
-
-        if ((rc = taskGps(stdout, &opt, fileTable, fileCount)) < 0)
-            return rc;
+    else if (task == TASK_GPS) {
+        if ((rc = taskGps(stdout, &opt, fileTable, fileCount)) < 0) return rc;
     }
 
     return 0;
@@ -130,12 +107,11 @@ static long int processArgs(int argc,
 /* a negative value in case of an error.                                      */
 /* -------------------------------------------------------------------------- */
 
-static long int getTask(char *arg)
-{
-
+static long int getTask(char *arg) {
     int task = 0;
 
-    if (strcmp("help", arg) == 0 || strcmp("--help", arg) == 0 || strcmp("-h", arg) == 0)
+    if (strcmp("help", arg) == 0 || strcmp("--help", arg) == 0 ||
+        strcmp("-h", arg) == 0)
         task = TASK_HELP;
     else if (strcmp("print", arg) == 0)
         task = TASK_PRINT;
@@ -155,29 +131,20 @@ static long int getTask(char *arg)
 /* to the "opt" struct. returns a negative value in case of an error.         */
 /* -------------------------------------------------------------------------- */
 
-static long int getOptions(int argc,
-                           char *argv[],
-                           struct options *opt)
-{
-
+static long int getOptions(int argc, char *argv[], struct options *opt) {
     int i = 0;
 
-    for (i = 2; i < argc; i++)
-    {
-
-        if (strncmp("-", argv[i], 1) != 0)
-            continue;
+    for (i = 2; i < argc; i++) {
+        if (strncmp("-", argv[i], 1) != 0) continue;
 
         if (strcmp("-r", argv[i]) == 0)
             (*opt).recursive = 1;
         else if (strcmp("-v", argv[i]) == 0)
             (*opt).verbose = 1;
-        else if (strncmp("-d=", argv[i], 3) == 0)
-        {
+        else if (strncmp("-d=", argv[i], 3) == 0) {
             (*opt).debug = atoi(argv[i] + 3);
             debug = (*opt).debug;
-        }
-        else
+        } else
             return ERR_OPT_INVALID;
     }
 
@@ -192,23 +159,13 @@ static long int getOptions(int argc,
 /* successful, otherwise a value smaller than 0 is returned.                  */
 /* -------------------------------------------------------------------------- */
 
-static long int allocateTagTable(char ***tagTable,
-                                 int tagTableItemCount)
-{
-
-    if (tagTableItemCount == 0)
-    {
-
-        if ((*tagTable =
-                 (char **)malloc(sizeof(char *))) == NULL)
+static long int allocateTagTable(char ***tagTable, int tagTableItemCount) {
+    if (tagTableItemCount == 0) {
+        if ((*tagTable = (char **)malloc(sizeof(char *))) == NULL)
             return ERR_MALLOC;
-    }
-    else
-    {
-
-        if ((*tagTable =
-                 (char **)realloc(*tagTable,
-                                  sizeof(char *) * (tagTableItemCount + 1))) == NULL)
+    } else {
+        if ((*tagTable = (char **)realloc(
+                 *tagTable, sizeof(char *) * (tagTableItemCount + 1))) == NULL)
             return ERR_MALLOC;
     }
 
@@ -221,33 +178,23 @@ static long int allocateTagTable(char ***tagTable,
 /* to the tag table. returns a negative value in case of an error.            */
 /* -------------------------------------------------------------------------- */
 
-static long int getTagList(int argc,
-                           char *argv[],
-                           char ***tagTable)
-{
-
+static long int getTagList(int argc, char *argv[], char ***tagTable) {
     long int i = 0;
     long int rc = 0;
     long int count = 0;
     long int tagNameLength = 0;
 
-    for (i = 2; i < argc; i++)
-    {
+    for (i = 2; i < argc; i++) {
+        if (strncmp("+", argv[i], 1) != 0) continue;
 
-        if (strncmp("+", argv[i], 1) != 0)
-            continue;
-
-        if ((rc = allocateTagTable(tagTable, count)) < 0)
-            return rc;
+        if ((rc = allocateTagTable(tagTable, count)) < 0) return rc;
 
         tagNameLength = strlen(argv[i]) - 1;
 
         if (((*tagTable)[count] = (char *)malloc(tagNameLength + 1)) == NULL)
             return ERR_MALLOC;
 
-        if (strcpy((*tagTable)[count],
-                   argv[i] + 1) == NULL)
-            return ERR_MEMCPY;
+        if (strcpy((*tagTable)[count], argv[i] + 1) == NULL) return ERR_MEMCPY;
 
         count++;
     }
@@ -263,23 +210,14 @@ static long int getTagList(int argc,
 /* successful, otherwise a value smaller than 0 is returned.                  */
 /* -------------------------------------------------------------------------- */
 
-static long int allocateFileTable(char ***fileTable,
-                                  int fileTableItemCount)
-{
-
-    if (fileTableItemCount == 0)
-    {
-
-        if ((*fileTable =
-                 (char **)malloc(sizeof(char *))) == NULL)
+static long int allocateFileTable(char ***fileTable, int fileTableItemCount) {
+    if (fileTableItemCount == 0) {
+        if ((*fileTable = (char **)malloc(sizeof(char *))) == NULL)
             return ERR_MALLOC;
-    }
-    else
-    {
-
-        if ((*fileTable =
-                 (char **)realloc(*fileTable,
-                                  sizeof(char *) * (fileTableItemCount + 1))) == NULL)
+    } else {
+        if ((*fileTable = (char **)realloc(
+                 *fileTable, sizeof(char *) * (fileTableItemCount + 1))) ==
+            NULL)
             return ERR_MALLOC;
     }
 
@@ -294,12 +232,8 @@ static long int allocateFileTable(char ***fileTable,
 /* and adds directories. returns the number of items added or 0 otherwise.    */
 /* -------------------------------------------------------------------------- */
 
-static long int addFileToFileTable(char *fileName,
-                                   char ***fileTable,
-                                   long int fileTableItemCount,
-                                   int recursive)
-{
-
+static long int addFileToFileTable(char *fileName, char ***fileTable,
+                                   long int fileTableItemCount, int recursive) {
     long int rc = 0;
     long int count = 0;
 
@@ -312,46 +246,35 @@ static long int addFileToFileTable(char *fileName,
 
     /* stat file */
 
-    if (stat(fileName, &fileStat) < 0)
-        return ERR_FILESTAT;
+    if (stat(fileName, &fileStat) < 0) return ERR_FILESTAT;
 
     /* regular file */
 
-    if (S_ISREG(fileStat.st_mode))
-    {
-
-        if ((rc = allocateFileTable(fileTable,
-                                    fileTableItemCount)) < 0)
+    if (S_ISREG(fileStat.st_mode)) {
+        if ((rc = allocateFileTable(fileTable, fileTableItemCount)) < 0)
             return rc;
 
-        if (((*fileTable)[fileTableItemCount] = (char *)malloc(strlen(fileName) + 1)) == NULL)
+        if (((*fileTable)[fileTableItemCount] =
+                 (char *)malloc(strlen(fileName) + 1)) == NULL)
             return ERR_MALLOC;
 
-        if (strcpy((*fileTable)[fileTableItemCount],
-                   fileName) == NULL)
+        if (strcpy((*fileTable)[fileTableItemCount], fileName) == NULL)
             return ERR_MEMCPY;
 
         count = 1;
-    }
-    else if (S_ISDIR(fileStat.st_mode) && recursive == 1)
-    {
+    } else if (S_ISDIR(fileStat.st_mode) && recursive == 1) {
+        if ((dir = opendir(fileName)) == NULL) return ERR_DIROPEN;
 
-        if ((dir = opendir(fileName)) == NULL)
-            return ERR_DIROPEN;
+        while ((dirEntry = readdir(dir)) != NULL) {
+            if (strncmp(dirEntry->d_name, ".", 1) == 0) continue;
 
-        while ((dirEntry = readdir(dir)) != NULL)
-        {
-
-            if (strncmp(dirEntry->d_name, ".", 1) == 0)
-                continue;
-
-            if ((relFileName = (char *)malloc(strlen(fileName) + strlen(dirEntry->d_name) + 2)) == NULL)
+            if ((relFileName = (char *)malloc(
+                     strlen(fileName) + strlen(dirEntry->d_name) + 2)) == NULL)
                 return ERR_MALLOC;
 
             sprintf(relFileName, "%s/%s", fileName, dirEntry->d_name);
 
-            if ((rc = addFileToFileTable(relFileName,
-                                         fileTable,
+            if ((rc = addFileToFileTable(relFileName, fileTable,
                                          fileTableItemCount + count,
                                          recursive)) < 0)
                 return rc;
@@ -374,27 +297,18 @@ static long int addFileToFileTable(char *fileName,
 /* returns a negative value in case of an error.                              */
 /* -------------------------------------------------------------------------- */
 
-static long int getFileList(int argc,
-                            char *argv[],
-                            char ***fileTable,
-                            int recursive)
-{
-
+static long int getFileList(int argc, char *argv[], char ***fileTable,
+                            int recursive) {
     long int i = 0;
     long int rc = 0;
     long int count = 0;
     long int fileNameLength = 0;
 
-    for (i = 2; i < argc; i++)
-    {
-
+    for (i = 2; i < argc; i++) {
         if (strncmp("-", argv[i], 1) == 0 || strncmp("+", argv[i], 1) == 0)
             continue;
 
-        if ((rc = addFileToFileTable(argv[i],
-                                     fileTable,
-                                     count,
-                                     recursive)) < 0)
+        if ((rc = addFileToFileTable(argv[i], fileTable, count, recursive)) < 0)
             return rc;
 
         count = count + rc;
@@ -408,9 +322,7 @@ static long int getFileList(int argc,
 /* prints help message.                                                       */
 /* -------------------------------------------------------------------------- */
 
-static void taskHelp(FILE *stream)
-{
-
+static void taskHelp(FILE *stream) {
     fprintf(stream, "Usage: exiftool <operation> [<tags>] [<options>] ");
     fprintf(stream, "<files>\n\n");
 
@@ -436,7 +348,7 @@ static void taskHelp(FILE *stream)
     fprintf(stream, "  Prints all exif information in test.jpg\n\n");
     fprintf(stream, "  $ exiftool print +Model +Make test.jpg\n");
     fprintf(stream, "  Prints the tags 'Model' and 'Make' only\n\n");
-    fprintf(stream, "  $ exiftool gps +Model +Make *.jpg > test.csv\n");
+    fprintf(stream, "  $ exiftool csv +Model +Make *.jpg > test.csv\n");
     fprintf(stream, "  Prints the tags 'Model' and 'Make' to a csv\n\n");
     fprintf(stream, "  $ exiftool gps test.jpg\n");
     fprintf(stream, "  Prints the gps information in test.jpg\n");
@@ -448,39 +360,25 @@ static void taskHelp(FILE *stream)
 /* otherwise.                                                                 */
 /* -------------------------------------------------------------------------- */
 
-static long int taskPrint(FILE *stream,
-                          struct options *opt,
-                          char **fileTable,
-                          long int fileTableItemCount,
-                          char **tagTable,
-                          long int tagTableItemCount)
-{
-
+static long int taskPrint(FILE *stream, struct options *opt, char **fileTable,
+                          long int fileTableItemCount, char **tagTable,
+                          long int tagTableItemCount) {
     long int i = 0;
     long int rc = 0;
     long int exifTableItemCount = 0;
     struct exifItem *exifTable = NULL;
 
-    for (i = 0; i < fileTableItemCount; i++)
-    {
-
-        if ((exifTableItemCount = extractExifInfo(fileTable[i],
-                                                  &exifTable)) < 0)
-        {
+    for (i = 0; i < fileTableItemCount; i++) {
+        if ((exifTableItemCount = extractExifInfo(fileTable[i], &exifTable)) <
+            0) {
             fprintf(stderr, "exiftool: exiflib error %ld\n",
                     exifTableItemCount);
             return exifTableItemCount;
         }
 
-        if ((rc = printExifInfo(stream,
-                                exifTable,
-                                exifTableItemCount,
-                                tagTable,
-                                tagTableItemCount,
-                                (*opt).verbose)) < 0)
-        {
-            fprintf(stderr, "exiftool: exifparser error %ld\n",
-                    rc);
+        if ((rc = printExifInfo(stream, exifTable, exifTableItemCount, tagTable,
+                                tagTableItemCount, (*opt).verbose)) < 0) {
+            fprintf(stderr, "exiftool: exifparser error %ld\n", rc);
             return rc;
         }
 
@@ -496,14 +394,9 @@ static long int taskPrint(FILE *stream,
 /* negative value otherwise.                                                  */
 /* -------------------------------------------------------------------------- */
 
-static long int taskCsv(FILE *stream,
-                        struct options *opt,
-                        char **fileTable,
-                        long int fileTableItemCount,
-                        char **tagTable,
-                        long int tagTableItemCount)
-{
-
+static long int taskCsv(FILE *stream, struct options *opt, char **fileTable,
+                        long int fileTableItemCount, char **tagTable,
+                        long int tagTableItemCount) {
     long int i = 0;
     long int j = 0;
     long int rc = 0;
@@ -515,33 +408,23 @@ static long int taskCsv(FILE *stream,
     /* print header */
 
     fprintf(stream, "Filename,");
-    for (i = 0; i < tagTableItemCount; i++)
-        fprintf(stream, "%s,", tagTable[i]);
+    for (i = 0; i < tagTableItemCount; i++) fprintf(stream, "%s,", tagTable[i]);
     fprintf(stream, "\n");
 
     /* loop file table */
 
-    for (i = 0; i < fileTableItemCount; i++)
-    {
-
+    for (i = 0; i < fileTableItemCount; i++) {
         fprintf(stream, "%s,", fileTable[i]);
 
-        if ((exifTableItemCount = extractExifInfo(fileTable[i],
-                                                  &exifTable)) < 0)
-        {
+        if ((exifTableItemCount = extractExifInfo(fileTable[i], &exifTable)) <
+            0) {
             fprintf(stream, "\n");
             continue;
         }
 
-        if ((rc = printExifCsv(stream,
-                               exifTable,
-                               exifTableItemCount,
-                               tagTable,
-                               tagTableItemCount,
-                               (*opt).verbose)) < 0)
-        {
-            fprintf(stderr, "exiftool: exifparser error %ld\n",
-                    rc);
+        if ((rc = printExifCsv(stream, exifTable, exifTableItemCount, tagTable,
+                               tagTableItemCount, (*opt).verbose)) < 0) {
+            fprintf(stderr, "exiftool: exifparser error %ld\n", rc);
             return rc;
         }
 
@@ -557,30 +440,22 @@ static long int taskCsv(FILE *stream,
 /* otherwise.                                                                 */
 /* -------------------------------------------------------------------------- */
 
-static long int taskGps(FILE *stream,
-                        struct options *opt,
-                        char **fileTable,
-                        long int fileTableItemCount)
-{
-
+static long int taskGps(FILE *stream, struct options *opt, char **fileTable,
+                        long int fileTableItemCount) {
     long int i = 0;
     long int rc = 0;
     long int exifTableItemCount = 0;
     struct exifItem *exifTable = NULL;
     char *gps = NULL;
 
-    for (i = 0; i < fileTableItemCount; i++)
-    {
-
-        if ((exifTableItemCount = extractExifInfo(fileTable[i],
-                                                  &exifTable)) < 0)
-        {
+    for (i = 0; i < fileTableItemCount; i++) {
+        if ((exifTableItemCount = extractExifInfo(fileTable[i], &exifTable)) <
+            0) {
             fprintf(stream, "no gps\n");
             continue;
         }
 
-        if ((gps = parseSpecialGPS(exifTable,
-                                   exifTableItemCount)) != NULL)
+        if ((gps = parseSpecialGPS(exifTable, exifTableItemCount)) != NULL)
             fprintf(stream, "%s\n", gps);
         else
             fprintf(stream, "no gps\n");

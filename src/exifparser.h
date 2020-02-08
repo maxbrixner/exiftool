@@ -1,14 +1,14 @@
 #ifndef EXIFPARSER_H_INCLUDED
 #define EXIFPARSER_H_INCLUDED
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
-#include <math.h>
 #include <dirent.h>
 #include <errno.h>
+#include <math.h>
+#include <stdarg.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 
 #include "exiflib.h"
@@ -23,9 +23,7 @@
 /* structs                                                                    */
 /* -------------------------------------------------------------------------- */
 
-struct idLookupItem
-{
-
+struct idLookupItem {
     long int tagID;
     char *tagName;
 };
@@ -195,25 +193,18 @@ char *parseTagType(struct exifItem *tag);
 
 char *parseTagData(struct exifItem *tag);
 
-char *parseSpecialGPS(struct exifItem *exifTable,
-                      long int exifTableItemCount);
+char *parseSpecialGPS(struct exifItem *exifTable, long int exifTableItemCount);
 
 struct exifItem *findTagByName(struct exifItem *exifTable,
-                               int exifTableItemCount,
-                               char *tagName);
+                               int exifTableItemCount, char *tagName);
 
 /* -------------------------------------------------------------------------- */
 /* static functions                                                           */
 /* -------------------------------------------------------------------------- */
 
-static int sprintf_wr(char **buf,
-                      char *fmt,
-                      ...);
+static int sprintf_wr(char **buf, char *fmt, ...);
 
-static size_t snprintf_wr(char **buf,
-                          size_t n,
-                          char *fmt,
-                          ...);
+static size_t snprintf_wr(char **buf, size_t n, char *fmt, ...);
 
 /* -------------------------------------------------------------------------- */
 
