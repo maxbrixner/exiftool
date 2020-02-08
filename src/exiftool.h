@@ -37,6 +37,8 @@
 #define ERR_FILESTAT -610
 #define ERR_DIROPEN -611
 #define ERR_FILEEXISTS -612
+#define ERR_MAKEDIR -613
+#define ERR_RENAME -614
 
 /* -------------------------------------------------------------------------- */
 /* structs                                                                    */
@@ -47,6 +49,7 @@ struct options {
     int verbose;
     int debug;
     char *pattern;
+    int simulate;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -96,8 +99,13 @@ static long int taskCsv(FILE *stream, struct options *opt, char **fileTable,
                         long int fileTableItemCount, char **tagTable,
                         long int tagTableItemCount);
 
-static long int taskRename(struct options *opt, char **fileTable,
+static long int taskRename(FILE *stream, struct options *opt, char **fileTable,
                            long int fileTableItemCount);
+
+static long int createFolders(FILE *stream, char *fileName,
+                              struct options *opt);
+
+static long int modifyFileName(char **modFileName, char *fileName);
 
 /* -------------------------------------------------------------------------- */
 

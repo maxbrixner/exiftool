@@ -31,7 +31,7 @@ static long int processArgs(int argc, char *argv[]) {
     int task = 0;
     long int fileCount = 0;
     long int tagCount = 0;
-    struct options opt = {0, 0};
+    struct options opt = {0, 0, 0, NULL, 0};
     char **fileTable = NULL;
     char **tagTable = NULL;
 
@@ -98,7 +98,8 @@ static long int processArgs(int argc, char *argv[]) {
     }
 
     else if (task == TASK_RENAME) {
-        if ((rc = taskRename(&opt, fileTable, fileCount)) < 0) return rc;
+        if ((rc = taskRename(stdout, &opt, fileTable, fileCount)) < 0)
+            return rc;
     }
 
     return 0;
@@ -151,6 +152,8 @@ static long int getOptions(int argc, char *argv[], struct options *opt) {
             debug = (*opt).debug;
         } else if (strncmp("-p=", argv[i], 3) == 0)
             (*opt).pattern = argv[i] + 3;
+        else if (strcmp("-s", argv[i]) == 0)
+            (*opt).simulate = 1;
         else
             return ERR_OPT_INVALID;
     }
@@ -488,19 +491,21 @@ static long int taskGps(FILE *stream, struct options *opt, char **fileTable,
 
     return 0;
 }
+
 /* -------------------------------------------------------------------------- */
 /* taskRename                                                                 */
 /* renames files according to a given pattern and their exif information.     */
 /* returns 0 if successful or a negative value otherwise.                     */
 /* -------------------------------------------------------------------------- */
 
-static long int taskRename(struct options *opt, char **fileTable,
+static long int taskRename(FILE *stream, struct options *opt, char **fileTable,
                            long int fileTableItemCount) {
     long int i = 0;
     long int rc = 0;
     long int exifTableItemCount = 0;
     struct exifItem *exifTable = NULL;
     char *fileName = NULL;
+    char *modFileName = NULL;
 
     struct stat fileStat;
 
@@ -519,24 +524,103 @@ static long int taskRename(struct options *opt, char **fileTable,
         }
 
         if ((*opt).verbose)
-            fprintf(stdout, "renaming '%s' to '%s'\n", fileTable[i], fileName);
+            fprintf(stream, "renaming '%s' to '%s'\n", fileTable[i], fileName);
 
-        /* check is file exists */
+        /* check is file exists or modify name */
 
-        if (stat(fileName, &fileStat) == 0) {
-            fprintf(stderr, "exiftool: file '%s' already exists\n", fileName);
-            return ERR_FILEEXISTS;
+        while (stat(fileName, &fileStat) == 0) {
+            if ((rc = modifyFileName(&modFileName, fileName)) < 0) return rc;
+            fileName = modFileName;
+            if ((*opt).verbose)
+                fprintf(stream, "using '%s' instead\n", fileName);
+        }
+
+        /* create directories */
+
+        if ((rc = createFolders(stream, fileName, opt)) < 0) {
+            fprintf(stderr, "exiftool: create folder error \n", fileName);
+            return rc;
         }
 
         /* rename file */
 
-        //TODO: function to create all necessary dirs
-        //TODO: modify file name if existing
-        //TODO: rename file (use c function "rename")
-        //TODO: simulation feauture
-
-        free(exifTable);
+        if (!(*opt).simulate) {
+            if (rename(fileTable[i], fileName) < 0) {
+                fprintf(stderr, "exiftool: rename file error\n", fileName);
+                return ERR_RENAME;
+            }
+        }
     }
+
+    free(exifTable);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* createFolders                                                              */
+/* creates all folders in a given "fileName". returns 0 if successful or a    */
+/* negative value otherwise.                                                  */
+/* -------------------------------------------------------------------------- */
+
+static long int createFolders(FILE *stream, char *fileName,
+                              struct options *opt) {
+    long int rc = 0;
+    char *limiterPos = NULL;
+    char *dirName = NULL;
+    struct stat fileStat;
+
+    while ((limiterPos = strchr(fileName, '/')) != NULL) {
+        if (dirName == NULL) {
+            if ((rc = snprintf_wr(&dirName, limiterPos - fileName + 1, "%s",
+                                  fileName)) < 0)
+                return rc;
+        } else {
+            if ((rc = snprintf_wr(
+                     &dirName, strlen(dirName) + 1 + limiterPos - fileName + 1,
+                     "%s/%s", dirName, fileName)) < 0)
+                return rc;
+        }
+
+        if (stat(dirName, &fileStat) < 0 && strlen(dirName) > 0) {
+            if ((*opt).verbose)
+                fprintf(stream, "creating directory '%s'\n", dirName);
+
+            if (!(*opt).simulate)
+                if (mkdir(dirName, 0755) != 0) return ERR_MAKEDIR;
+        }
+
+        fileName = limiterPos + 1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* modifyFileName                                                             */
+/* adds a ".b" to "fileName" and prints the result to "modFileName". is used  */
+/* to create unique file names. returns 0 if successful or a negative value   */
+/* otherwise.                                                                 */
+/* -------------------------------------------------------------------------- */
+
+static long int modifyFileName(char **modFileName, char *fileName) {
+    long int rc = 0;
+    char *extPos = 0;
+    char *baseName = NULL;
+    char *extName = NULL;
+
+    if ((extPos = strrchr(fileName, '.')) == NULL) {
+        if ((rc = sprintf_wr(&baseName, "%s", fileName)) < 0) return rc;
+        if ((rc = sprintf_wr(&extName, "")) < 0) return rc;
+    } else {
+        if ((rc = snprintf_wr(&baseName, extPos - fileName + 1, "%s",
+                              fileName)) < 0)
+            return rc;
+        if ((rc = sprintf_wr(&extName, "%s", extPos)) < 0) return rc;
+    }
+
+    if ((rc = sprintf_wr(modFileName, "%s.b%s", baseName, extName)) < 0)
+        return rc;
 
     return 0;
 }

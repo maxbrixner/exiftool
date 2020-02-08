@@ -1,7 +1,7 @@
 prefix=/usr
     
 all:
-	gcc -g src/*.c -o src/exiftool
+	gcc -g src/*.c -o exiftool
 	
 install: exiftool
 	install -m 0755 exiftool $(prefix)/bin
