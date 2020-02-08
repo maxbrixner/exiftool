@@ -36,6 +36,7 @@
 #define ERR_FILEOPEN -609
 #define ERR_FILESTAT -610
 #define ERR_DIROPEN -611
+#define ERR_FILEEXISTS -612
 
 /* -------------------------------------------------------------------------- */
 /* structs                                                                    */

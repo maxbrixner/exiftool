@@ -130,43 +130,44 @@ long int fileNameFromPattern(char **fileName, char *pattern, char *oldFileName,
     long int i = 0;
     long int rc = 0;
 
-    char *charSearch = "";
+    char *subPatternEnd = "";
     char *fileNameNew = NULL;
+    char *subFileName = NULL;
     char *subPattern = NULL;
 
     if (pattern == NULL) return EXIF_ERR_PATTERN;
     if (strlen(pattern) <= 0) return EXIF_ERR_PATTERN;
 
-    printf("pattern: \"%s\"\n", pattern);
+    /* initialize filename */
 
     if ((rc = sprintf_wr(fileName, "")) != 0) return rc;
 
-    for (i = 0; i < strlen(pattern); i++) {
-        printf("[%ld]\"%c\"\n", i, pattern[i]);
+    /* analyze pattern char by char */
 
+    for (i = 0; i < strlen(pattern); i++) {
         /* character is start of sub pattern */
 
         if (strncmp(pattern + i, "[", 1) == 0) {
-            if ((charSearch = strchr(pattern + i, ']')) == NULL)
+            if ((subPatternEnd = strchr(pattern + i, ']')) == NULL)
                 return EXIF_ERR_PATTERN;
 
-            snprintf_wr(&subPattern, charSearch - pattern - i, "%s",
+            snprintf_wr(&subPattern, subPatternEnd - pattern - i, "%s",
                         pattern + i + 1);
 
-            // TODO: add sub pattern analyzer
-
-            if ((rc = sprintf_wr(&fileNameNew, "%s%s", *fileName, "TODO")) < 0)
+            if ((rc = parseSubPattern(&subFileName, subPattern, oldFileName,
+                                      exifTable, exifTableItemCount)))
                 return rc;
 
-            printf("\tsub pattern \"%s\"\n", subPattern);
-            i = i + charSearch - pattern - i;
+            if ((rc = sprintf_wr(&fileNameNew, "%s%s", *fileName,
+                                 subFileName)) < 0)
+                return rc;
+
+            i = i + subPatternEnd - pattern - i;
         }
 
         /* character is regular character */
 
         else {
-            printf("\tregular character \"%c\"\n", pattern[i]);
-
             if ((rc = sprintf_wr(&fileNameNew, "%s%c", *fileName, pattern[i])) <
                 0)
                 return rc;
@@ -174,11 +175,94 @@ long int fileNameFromPattern(char **fileName, char *pattern, char *oldFileName,
 
         /* update filename */
 
-        printf("\tfileNameNew: \"%s\"\n", fileNameNew);
         *fileName = fileNameNew;
     }
 
-    printf("result: \"%s\"\n", *fileName);
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* parseSubPattern                                                            */
+/* analyzes the sub pattern between the square brackets of a pattern and      */
+/* parses the tag data. returns 0 if successful or a negative value           */
+/* otherwise.                                                                 */
+/* -------------------------------------------------------------------------- */
+
+static long int parseSubPattern(char **subFileName, char *subPattern,
+                                char *oldFileName, struct exifItem *exifTable,
+                                int exifTableItemCount) {
+    long int rc = 0;
+
+    char *colonPos = NULL;
+    char *semicolPos = NULL;
+    char *parsedTagId = NULL;
+
+    char *from = NULL;
+    char *to = NULL;
+    long int fromPos = 0;
+    long int toPos = 0;
+
+    char *tagData = NULL;
+    static struct exifItem *exifTag = NULL;
+
+    /* extract tag id */
+
+    if ((semicolPos = strchr(subPattern, ';')) == NULL) {
+        if ((rc = sprintf_wr(&parsedTagId, "%s", subPattern)) < 0) return rc;
+    } else {
+        if ((rc = snprintf_wr(&parsedTagId, semicolPos - subPattern + 1, "%s",
+                              subPattern)) < 0)
+            return rc;
+    }
+
+    /* extract from and to positions */
+
+    if (semicolPos != NULL) {
+        if ((colonPos = strchr(semicolPos, ':')) == NULL)
+            return EXIF_ERR_PATTERN;
+
+        if ((rc = snprintf_wr(&from, colonPos - semicolPos, "%s",
+                              semicolPos + 1)) < 0)
+            return rc;
+
+        fromPos = atol(from);
+
+        if ((rc = snprintf_wr(&to, subPattern + strlen(subPattern) - colonPos,
+                              "%s", colonPos + 1)) < 0)
+            return rc;
+
+        toPos = atol(to);
+    }
+
+    /* get tag data (starting with special cases) */
+
+    if (strcmp(parsedTagId, "OldFileName") == 0)
+        tagData = oldFileName;
+    else {
+        if ((exifTag = findTagByName(exifTable, exifTableItemCount,
+                                     parsedTagId)) == NULL) {
+            return EXIF_ERR_PATTERN_NOMATCH;
+        }
+
+        if ((tagData = parseTagData(exifTag)) == NULL)
+            return EXIF_ERR_PATTERN_NOMATCH;
+    }
+
+    /* modify from and to */
+
+    if (fromPos < 1) fromPos = 1;
+    if (toPos < 1) toPos = strlen(tagData);
+
+    if (fromPos > strlen(tagData) || toPos > strlen(tagData))
+        return EXIF_ERR_PATTERN;
+
+    if (fromPos > toPos) return EXIF_ERR_PATTERN_NOMATCH;
+
+    /* create subfilename */
+
+    if ((rc = snprintf_wr(subFileName, toPos - fromPos + 2, "%s",
+                          tagData + fromPos - 1)) < 0)
+        return rc;
 
     return 0;
 }

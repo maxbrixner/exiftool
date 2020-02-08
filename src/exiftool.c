@@ -4,14 +4,13 @@
 
 // TODO: finish rename task
 // TODO: add modify time/date task
-// TODO: write unit tests
 
 /* -------------------------------------------------------------------------- */
 /* main                                                                       */
 /* -------------------------------------------------------------------------- */
 
 int main(int argc, char *argv[]) {
-    int rc = 0;
+    long int rc = 0;
 
     /* process */
 
@@ -338,7 +337,9 @@ static void taskHelp(FILE *stream) {
     fprintf(stream, "  help              Print this help screen\n");
     fprintf(stream, "  print             Print exif information\n");
     fprintf(stream, "  csv               Print specified tag(s) as csv\n");
-    fprintf(stream, "  gps               Print gps coordinates\n\n");
+    fprintf(stream, "  gps               Print gps coordinates\n");
+    fprintf(stream,
+            "  rename            Rename files based on a given pattern\n\n");
 
     fprintf(stream, "Options\n");
     fprintf(stream, "  -r                Search directories recursively\n");
@@ -347,9 +348,15 @@ static void taskHelp(FILE *stream) {
     fprintf(stream, "                    Default is off\n");
     fprintf(stream, "  -d=x              Turn on debug mode to level x\n");
     fprintf(stream, "                    Default is zero\n\n");
+    fprintf(stream, "  -p=x              Use pattern x to rename files\n");
+    fprintf(stream, "                    No default is given\n\n");
 
     fprintf(stream, "Tags\n");
     fprintf(stream, "  +[tag]            Specifies which tags to print\n\n");
+
+    fprintf(stream, "Rename Patterns\n");
+    fprintf(stream, "  -p=[x;2:4]        Uses the letter 2:4 of the data\n");
+    fprintf(stream, "                    of the tag x\n\n");
 
     fprintf(stream, "Examples\n");
     fprintf(stream, "  $ exiftool print test.jpg\n");
@@ -359,7 +366,15 @@ static void taskHelp(FILE *stream) {
     fprintf(stream, "  $ exiftool csv +Model +Make *.jpg > test.csv\n");
     fprintf(stream, "  Prints the tags 'Model' and 'Make' to a csv\n\n");
     fprintf(stream, "  $ exiftool gps test.jpg\n");
-    fprintf(stream, "  Prints the gps information in test.jpg\n");
+    fprintf(stream, "  Prints the gps information in test.jpg\n\n");
+    fprintf(stream,
+            "  $ exiftool rename -p=\"test/cam_[Make].jpg\" test.jpg\n");
+    fprintf(stream, "  Renames test.jpg to 'test/cam_NIKON.jpg or similar,\n");
+    fprintf(stream, "  depending on the exif information in the file.\n\n");
+    fprintf(stream,
+            "  $ exiftool rename -p=\"test/cam_[Make;1:3].jpg\" test.jpg\n");
+    fprintf(stream, "  Renames test.jpg to 'test/cam_NIK.jpg or similar,\n");
+    fprintf(stream, "  depending on the exif information in the file.\n");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -487,6 +502,8 @@ static long int taskRename(struct options *opt, char **fileTable,
     struct exifItem *exifTable = NULL;
     char *fileName = NULL;
 
+    struct stat fileStat;
+
     for (i = 0; i < fileTableItemCount; i++) {
         if ((exifTableItemCount = extractExifInfo(fileTable[i], &exifTable)) <
             0) {
@@ -501,9 +518,22 @@ static long int taskRename(struct options *opt, char **fileTable,
             return rc;
         }
 
-        // TODO: add rename and function that ammends file name if it already
-        // exists
-        // TODO: add test feature
+        if ((*opt).verbose)
+            fprintf(stdout, "renaming '%s' to '%s'\n", fileTable[i], fileName);
+
+        /* check is file exists */
+
+        if (stat(fileName, &fileStat) == 0) {
+            fprintf(stderr, "exiftool: file '%s' already exists\n", fileName);
+            return ERR_FILEEXISTS;
+        }
+
+        /* rename file */
+
+        //TODO: function to create all necessary dirs
+        //TODO: modify file name if existing
+        //TODO: rename file (use c function "rename")
+        //TODO: simulation feauture
 
         free(exifTable);
     }

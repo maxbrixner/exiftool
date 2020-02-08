@@ -36,6 +36,10 @@ long int fileNameFromPattern(char **fileName, char *pattern, char *oldFileName,
 static long int isInTagTable(char *parsedTagId, char **tagTable,
                              int tagTableItemCount);
 
+static long int parseSubPattern(char **subFileName, char *subPattern,
+                                char *oldFileName, struct exifItem *exifTable,
+                                int exifTableItemCount);
+
 /* -------------------------------------------------------------------------- */
 
 #endif
