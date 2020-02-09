@@ -2,8 +2,9 @@
 
 #include "exiftool.h"
 
-// TODO: finish rename task
-// TODO: add modify time/date task
+// TODO add exif modify lib and tasks
+// TODO exif parser: add remaining parsers
+// TODO exif lib: the data of the maker note itself also contains an ifd
 
 /* -------------------------------------------------------------------------- */
 /* main                                                                       */

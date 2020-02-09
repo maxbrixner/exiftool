@@ -92,8 +92,6 @@ char *parseTagType(struct exifItem *tag) {
 /* -------------------------------------------------------------------------- */
 
 char *parseTagData(struct exifItem *tag) {
-    // TODO add remaining parsers
-
     char *tagData = NULL;
     long int i = 0;
 

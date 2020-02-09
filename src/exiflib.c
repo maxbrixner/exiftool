@@ -9,9 +9,6 @@
 /* -------------------------------------------------------------------------- */
 
 long int extractExifInfo(char *fileName, struct exifItem **exifTable) {
-    // TODO the data of the maker Note itself also contains an ifd
-    // still unsure how to handle these
-
     long int i = 0;
     long int rc = 0;
 
