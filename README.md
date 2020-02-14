@@ -1,7 +1,5 @@
 # exiftool
-
-A simple and lightweight exif tool.
-
+A simple and lightweight exif tool for Linux.
 ## Usage
 Use the exiftool from your command line like this.
 ```
@@ -27,9 +25,7 @@ $ exiftool <operation> [<tags>] [<options>] <files>
 
 ### Rename patterns
 `-p=[x;2:4]` Uses the letters 2 to 4 of the data contained in exif tag x.
-
 ## Examples
-
 Print all the exif information contained in the file `test.jpg`.
 ```
 $ exiftool print test.jpg 
@@ -58,9 +54,7 @@ Rename all jpg files in the current directory according the information given in
 ```
 $ exiftool rename -s -v -p="[DateTimeOriginal;1:4]/[DateTimeOriginal;6:7]/[DateTimeOriginal;9:10]/[DateTimeOriginal;12:13][DateTimeOriginal;15:16][DateTimeOriginal;18:19].jpg" *.jpg
 ```
-
-## TODO
-
+## Todo
 + Add exif modify lib and tasks
 + Exif parser: add remaining parsers
 + Exif lib: the data of the maker note itself also contains an ifd

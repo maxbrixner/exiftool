@@ -2,10 +2,6 @@
 
 #include "exiftool.h"
 
-// TODO add exif modify lib and tasks
-// TODO exif parser: add remaining parsers
-// TODO exif lib: the data of the maker note itself also contains an ifd
-
 /* -------------------------------------------------------------------------- */
 /* main                                                                       */
 /* -------------------------------------------------------------------------- */
@@ -351,9 +347,11 @@ static void taskHelp(FILE *stream) {
     fprintf(stream, "  -v                Turn on verbose mode\n");
     fprintf(stream, "                    Default is off\n");
     fprintf(stream, "  -d=x              Turn on debug mode to level x\n");
-    fprintf(stream, "                    Default is zero\n\n");
+    fprintf(stream, "                    Default is zero\n");
     fprintf(stream, "  -p=x              Use pattern x to rename files\n");
-    fprintf(stream, "                    No default is given\n\n");
+    fprintf(stream, "                    No default is given\n");
+    fprintf(stream, "  -s                Toogle rename simulation\n");
+    fprintf(stream, "                    Default is off\n\n");
 
     fprintf(stream, "Tags\n");
     fprintf(stream, "  +[tag]            Specifies which tags to print\n\n");
@@ -402,6 +400,8 @@ static long int taskPrint(FILE *stream, struct options *opt, char **fileTable,
                     exifTableItemCount);
             return exifTableItemCount;
         }
+
+        fprintf(stream, "[%s]\n", fileTable[i]);
 
         if ((rc = printExifInfo(stream, exifTable, exifTableItemCount, tagTable,
                                 tagTableItemCount, (*opt).verbose)) < 0) {
