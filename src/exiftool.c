@@ -539,7 +539,7 @@ static long int taskRename(FILE *stream, struct options *opt, char **fileTable,
         /* create directories */
 
         if ((rc = createFolders(stream, fileName, opt)) < 0) {
-            fprintf(stderr, "exiftool: create folder error \n", fileName);
+            fprintf(stderr, "exiftool: create folder error \n");
             return rc;
         }
 
@@ -547,7 +547,7 @@ static long int taskRename(FILE *stream, struct options *opt, char **fileTable,
 
         if (!(*opt).simulate) {
             if (rename(fileTable[i], fileName) < 0) {
-                fprintf(stderr, "exiftool: rename file error\n", fileName);
+                fprintf(stderr, "exiftool: rename file error\n");
                 return ERR_RENAME;
             }
         }

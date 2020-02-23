@@ -136,7 +136,7 @@ long int fileNameFromPattern(char **fileName, char *pattern, char *oldFileName,
     char *subPattern = NULL;
 
     if (pattern == NULL) return EXIF_ERR_PATTERN;
-    if (strlen(pattern) <= 0) return EXIF_ERR_PATTERN;
+    if (strlen(pattern) == 0) return EXIF_ERR_PATTERN;
 
     /* initialize filename */
 

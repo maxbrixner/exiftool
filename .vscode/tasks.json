@@ -23,6 +23,17 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "cppcheck",
+            "type": "shell",
+            "command": "cppcheck",
+            "args": [
+                "--template=gcc",
+                "--enable=style",
+                "${fileDirname}/*.c"
+            ],
+            "problemMatcher": "$gcc",
         }
     ]
 }
