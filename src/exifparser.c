@@ -95,7 +95,7 @@ char *parseTagData(struct exifItem *tag) {
     char *tagData = NULL;
     long int i = 0;
 
-    size_t n = 0;
+    int n = 0;
     long int length = 0;
 
     double fnumber = 0.0;

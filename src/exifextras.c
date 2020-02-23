@@ -45,7 +45,8 @@ long int printExifInfo(FILE *stream, struct exifItem *exifTable,
             fprintf(stream, "\texifFormat    = %ld\n", exifTable[i].exifFormat);
             fprintf(stream, "\tifdID         = %ld\n", exifTable[i].ifdID);
             fprintf(stream, "\ttagPos        = %ld\n", exifTable[i].tagPos);
-            fprintf(stream, "\ttagID         = 0x%04x\n", exifTable[i].tagID);
+            fprintf(stream, "\ttagID         = 0x%04x\n",
+                    (unsigned int)exifTable[i].tagID);
             fprintf(stream, "\ttagType       = %ld\n", exifTable[i].tagType);
             fprintf(stream, "\ttagTypeSize   = %ld\n", exifTable[i].tagType);
             fprintf(stream, "\ttagCount      = %ld\n", exifTable[i].tagCount);
@@ -130,7 +131,7 @@ long int fileNameFromPattern(char **fileName, char *pattern, char *oldFileName,
     long int i = 0;
     long int rc = 0;
 
-    char *subPatternEnd = "";
+    char *subPatternEnd = NULL;
     char *fileNameNew = NULL;
     char *subFileName = NULL;
     char *subPattern = NULL;

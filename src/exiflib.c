@@ -59,7 +59,7 @@ long int extractExifInfo(char *fileName, struct exifItem **exifTable) {
                                 2  // exif marker has two extra bytes
                                 + EXIF_HEADER_LENGTH,
                             IFD_ID_IFD)) < 0)
-        return EXIF_ERR_IFD_QUEUE;
+        return rc;
 
     /* process queue - more queue items will be added during process */
 
@@ -68,7 +68,7 @@ long int extractExifInfo(char *fileName, struct exifItem **exifTable) {
                                     ifdQueue[i].ifdPos, ifdQueue[i].ifdID,
                                     exifMarkerPos, exifFormat, &ifdQueue,
                                     &ifdQueueItemCount)) < 0)
-            return EXIF_ERR_ADD_IFD;
+            return rc;
     }
 
     /* clean up and return */
